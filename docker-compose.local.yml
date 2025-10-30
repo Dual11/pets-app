@@ -1,0 +1,29 @@
+version: '3.8'
+services:
+  api:
+    build: .
+    container_name: pets-api
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: pet
+      MYSQL_USER: user_app
+      MYSQL_PASSWORD: root
+    ports:
+      - "3307:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./sql:/docker-entrypoint-initdb.d
+  app:
+    build: .
+    ports:
+      - "8081:80"
+    volumes:
+      - ./:/var/www/html
+    depends_on:
+      - db
+volumes:
+  db_data:
+
+
