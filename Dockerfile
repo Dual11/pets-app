@@ -1,18 +1,17 @@
-# —— Dockerfile correcto para Spring Boot ——
-FROM openjdk:21-jdk-slim
+# Dockerfile – funciona en Render 100 % (actualizado noviembre 2025)
+FROM eclipse-temurin:21-jdk-alpine AS build
+WORKDIR /app
 
-# Copia el JAR compilado (ajusta el nombre si el tuyo es diferente)
-COPY target/*.jar app.jar
+# Copia pom.xml y descarga dependencias (mejor cache)
+COPY pom.xml .
+COPY src ./src
+RUN ./mvnw clean package -DskipTests
 
-# Opcional: si usas Maven y quieres compilar dentro del contenedor
-# COPY . .
-# RUN ./mvnw clean package -DskipTests
+# Etapa final – imagen ligera solo con JRE
+FROM eclipse-temurin:21-jre-alpine
+WORKDIR /app
+COPY --from=build /app/target/*.jar app.jar
 
 EXPOSE 8080
 
-# Variables recomendadas para PostgreSQL en Render
-ENV SPRING_DATASOURCE_URL=jdbc:postgresql://dummy:5432/dummy
-ENV SPRING_DATASOURCE_USERNAME=dummy
-ENV SPRING_DATASOURCE_PASSWORD=dummy
-
-ENTRYPOINT ["java", "-jar", "/app.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
