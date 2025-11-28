@@ -1,12 +1,18 @@
-FROM php:8.2-apache
+# —— Dockerfile correcto para Spring Boot ——
+FROM openjdk:21-jdk-slim
 
-# Instala extensiones necesarias de PHP para MySQL
-RUN docker-php-ext-install mysqli pdo pdo_mysql
+# Copia el JAR compilado (ajusta el nombre si el tuyo es diferente)
+COPY target/*.jar app.jar
 
-# Copia el código fuente al contenedor
-COPY . /var/www/html/
+# Opcional: si usas Maven y quieres compilar dentro del contenedor
+# COPY . .
+# RUN ./mvnw clean package -DskipTests
 
-# Habilita mod_rewrite para URLs amigables
-RUN a2enmod rewrite
+EXPOSE 8080
 
-EXPOSE 80
+# Variables recomendadas para PostgreSQL en Render
+ENV SPRING_DATASOURCE_URL=jdbc:postgresql://dummy:5432/dummy
+ENV SPRING_DATASOURCE_USERNAME=dummy
+ENV SPRING_DATASOURCE_PASSWORD=dummy
+
+ENTRYPOINT ["java", "-jar", "/app.jar"]
