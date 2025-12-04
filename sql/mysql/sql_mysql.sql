@@ -15,5 +15,5 @@ CREATE TABLE IF NOT EXISTS pet (
 
 -- Datos iniciales (opcional)
 INSERT INTO pet (name, born, chip, category) VALUES
-('Mugu', '2017-09-12', '2r2r2r2r33y3y3', 'pinscher'),
-('Alonso', '2025-09-16', '2324GFee111111', 'champion');
+('Mugu_local', '2017-09-12', '2r2r2r2r33y3y3', 'pinscher'),
+('Alonso_local', '2025-09-16', '2324GFee111111', 'champion');
