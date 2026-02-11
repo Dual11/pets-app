@@ -1,0 +1,14 @@
+services:
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: neon
+      SPRING_DATASOURCE_URL: jdbc:postgresql://ep-calm-scene-aigja6o2-pooler.c-4.us-east-1.aws.neon.tech/neondb?sslmode=require
+      SPRING_DATASOURCE_USERNAME: neondb_owner
+      SPRING_DATASOURCE_PASSWORD: npg_fzXp15bkIxlo
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
+      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.PostgreSQLDialect
+      SPRING_DATASOURCE_HIKARI_CONNECTION_TIMEOUT: 60000     # 60s
+      SPRING_DATASOURCE_HIKARI_MAX_LIFETIME: 1800000

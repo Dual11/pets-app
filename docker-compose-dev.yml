@@ -1,0 +1,39 @@
+version: '3.9'
+
+services:
+  db:
+    image: mariadb:11
+    container_name: mariadb-dev-pets
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: rootpass
+      MARIADB_DATABASE: pets
+      MARIADB_USER: appuser
+      MARIADB_PASSWORD: apppass
+    ports:
+      - "3308:3306"         # puerto diferente para no chocar con local
+    volumes:
+      - mariadb-dev-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mariadb-admin", "--protocol=tcp", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile   # tu Dockerfile existente
+    container_name: spring-pets-dev
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  mariadb-dev-data:

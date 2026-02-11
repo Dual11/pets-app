@@ -1,21 +1,41 @@
+version: '3.9'
+
 services:
-  api:
-    build: .
-    container_name: pets-api
-    restart: always
-    environment:
-      SPRING_PROFILES_ACTIVE: local
-    ports:
-      - "8080:8080"
   db:
     image: mysql:8.0
-    restart: always
+    container_name: mysql-pets
+    restart: unless-stopped
     environment:
-      MYSQL_ALLOW_EMPTY_PASSWORD: "true"
-      MYSQL_DATABASE: pets
-      MYSQL_USER: usuario_app
-      MYSQL_PASSWORD: clave_app
+      MYSQL_ROOT_PASSWORD: rootpass          # contraseña root (cámbiala en producción)
+      MYSQL_DATABASE: pets                   # nombre de la BD que se crea automáticamente
+      MYSQL_USER: appuser                    # usuario normal para tu app
+      MYSQL_PASSWORD: apppass                # contraseña del usuario app
     ports:
-      - "3306:3306"
+      - "3307:3306"                          # mapeamos 3307 en localhost → evita conflicto con MySQL local si lo tienes
     volumes:
-      - ./sql/mysql:/docker-entrypoint-initdb.d
+      - mysql-data:/var/lib/mysql            # persistencia de datos
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .                                 # construye desde tu Dockerfile
+    container_name: spring-pets
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/pets?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: appuser
+      SPRING_DATASOURCE_PASSWORD: apppass
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update    # o validate/create si prefieres
+      SPRING_JPA_SHOW_SQL: true
+      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.MySQLDialect
+    depends_on:
+      db:
+        condition: service_healthy           # espera a que MySQL esté realmente listo
+
+volumes:
+  mysql-data:
